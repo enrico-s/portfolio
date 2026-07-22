@@ -12,9 +12,9 @@ from data.loader import load_returns
 from portfolio.portfolio import Portfolio
 
 def main() -> None:
-    portfolio = Portfolio(["AMZN", "META", "TSLA"], [0.5, 0.3, 0.2])
+    portfolio = Portfolio(["AMZN", "META", "TSLA"], [0.1, 0.5, 0.4])
     returns = load_returns(portfolio.assets, start="2015-01-01")
-    results = Backtest(portfolio, returns, split_date="2023-01-01").run()
+    results = Backtest(portfolio, returns, split_date="2023-01-01").run(objective="maximum_return")
     print("Original test metrics:", results.original_test_metrics.as_dict())
     print("Optimized test metrics:", results.optimized_test_metrics.as_dict())
     print("Optimized weights:", dict(zip(portfolio.assets, results.optimized_portfolio.weights)))
