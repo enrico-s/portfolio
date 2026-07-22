@@ -1,3 +1,9 @@
+import sys
+import os
+
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, path)
+
 import numpy as np
 import pandas as pd
 from backtest.backtest import Backtest
@@ -10,3 +16,6 @@ def test_backtest_uses_only_training_data_for_optimization():
     assert result.optimized_portfolio.weights[0] > 0.99
     assert len(result.optimized_test_returns) == 4
     assert np.isfinite(result.optimized_test_metrics.cumulative_return)
+
+if __name__ == "__main__":
+    test_backtest_uses_only_training_data_for_optimization()
