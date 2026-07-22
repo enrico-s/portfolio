@@ -16,7 +16,7 @@ pip install -r requirements.txt
 python examples/run_portfolio.py
 ```
 
-The example downloads SPY, QQQ, and GLD returns with QuantStats, optimizes only observations before 1 January 2023, then evaluates both portfolios on the later test period.
+The example downloads AMZN, META, and TSLA returns with QuantStats, optimizes only observations before 1 January 2023, then evaluates both portfolios on the later test period.
 
 ## Test
 

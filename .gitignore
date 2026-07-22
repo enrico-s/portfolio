@@ -4,6 +4,4 @@ __pycache__/
 .venv/
 venv/
 .env
-.agents
-*specification.md
 .gitignore
