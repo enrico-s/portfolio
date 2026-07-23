@@ -47,10 +47,12 @@ class Optimizer:
         objective: OptimizationObjective | str = OptimizationObjective.MAXIMUM_SHARPE,
         constraints: PortfolioConstraints | None = None,
         risk_free_rate: float = 0.0,
+        solver: str | None = "SLSQP",
     ) -> None:
         self.objective = OptimizationObjective(objective)
         self.constraints = constraints or PortfolioConstraints()
         self.risk_free_rate = risk_free_rate
+        self.solver = solver
 
     def optimize(
         self,
@@ -74,7 +76,7 @@ class Optimizer:
         result = minimize(
             objective_function,
             x0=np.full(count, 1.0 / count),
-            method="SLSQP",
+            method=self.solver,
             bounds=self.constraints.bounds(count),
             constraints={"type": "eq", "fun": lambda weights: weights.sum() - 1.0},
         )

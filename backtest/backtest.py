@@ -36,6 +36,7 @@ class BacktestResults:
             plot_cumulative_returns,
             plot_weights_history,
             plot_covariance_heatmap,
+            plot_correlation_heatmap,
         )
 
         figures = {}
@@ -57,6 +58,7 @@ class BacktestResults:
         
         if self.covariance_test is not None:
             figures["covariance_test"] = plot_covariance_heatmap(self.covariance_test)
+            figures["correlation_test"] = plot_correlation_heatmap(self.covariance_test)
 
         return figures
     
