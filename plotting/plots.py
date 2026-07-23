@@ -28,3 +28,25 @@ def plot_allocation_pie(assets: tuple[str, ...], weights: tuple[float, ...]) -> 
     axis.set_title("Optimized portfolio allocation")
     figure.tight_layout()
     return figure
+
+def plot_weights_history(weights_history: pd.DataFrame) -> plt.Figure:
+    """Plot the history of portfolio weights over time."""
+    figure, axis = plt.subplots()
+    weights_history.plot(ax=axis)
+    axis.set(title="Portfolio weights history", ylabel="Weight")
+    axis.legend(title="Asset")
+    figure.tight_layout()
+    return figure
+
+def plot_covariance_heatmap(covariance_matrix: pd.DataFrame) -> plt.Figure:
+    """Plot a heatmap of the covariance matrix."""
+    figure, axis = plt.subplots()
+    cax = axis.matshow(covariance_matrix, cmap="coolwarm")
+    figure.colorbar(cax)
+    axis.set_xticks(range(len(covariance_matrix.columns)))
+    axis.set_yticks(range(len(covariance_matrix.index)))
+    axis.set_xticklabels(covariance_matrix.columns, rotation=90)
+    axis.set_yticklabels(covariance_matrix.index)
+    axis.set_title("Covariance Matrix Heatmap")
+    figure.tight_layout()
+    return figure

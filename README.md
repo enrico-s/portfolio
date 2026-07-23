@@ -1,27 +1,54 @@
-# Portfolio Optimizer (Version 1)
+# Portfolio Construction Framework
 
-A modular Python tool that compares an initial long-only portfolio with a maximum-Sharpe portfolio chosen strictly from historical training data.
+A modular framework for constructing and evaluating portfolios without
+look-ahead bias.
 
-## Setup
-
-```bash
-python -m venv .venv
-.venv\\Scripts\\activate
-pip install -r requirements.txt
+```text
+Returns -> Alpha model -> Risk model -> Optimizer -> Portfolio -> Backtest
 ```
 
-## Run
+- `alpha.AlphaModel` produces expected returns or scores.
+- `risk.RiskModel` produces a covariance matrix.
+- `optimization.Optimizer` produces a `Portfolio` from alpha, covariance, and constraints.
+- `backtest.Backtest` performs a single train/test evaluation or rolling walk-forward re-optimisation.
 
-```bash
+Version 1 includes equal, historical-mean, and momentum alpha models; a historical covariance risk model; maximum-Sharpe and maximum-expected-return optimisation; allocation constraints; and metrics.
+
+## Setup and example
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 python examples/run_portfolio.py
 ```
 
-The example downloads AMZN, META, and TSLA returns with QuantStats, optimizes only observations before 1 January 2023, then evaluates both portfolios on the later test period.
+The example uses momentum alpha, historical covariance, and a 60% maximum allocation per asset. It trains before 1 January 2023 and evaluates later returns only.
 
-## Test
+## Rolling re-optimization
 
-```bash
-pytest
+Omit `split_date` to use a walk-forward backtest. Every rebalance uses only the preceding `lookback_period` observations; the selected weights apply only to following returns.
+
+```python
+results = Backtest(
+    portfolio=portfolio,
+    returns=returns,
+    alpha_model=MomentumAlpha(lookback_period=126),
+    risk_model=HistoricalCovarianceRiskModel(),
+    optimizer=Optimizer(
+        objective="maximum_sharpe",
+        constraints=PortfolioConstraints(max_weight=0.60),
+    ),
+    lookback_period=252,
+    rebalance_frequency=21,
+).run()
+
+print(results.optimized_test_metrics.as_dict())
+print(results.weight_history)
 ```
 
-`data` obtains return data; `portfolio` validates portfolios and calculates metrics; `optimization` contains the extensible maximum-Sharpe routine; `backtest` coordinates the no-look-ahead workflow; and `plotting` renders charts.
+## Tests
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
