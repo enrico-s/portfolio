@@ -7,6 +7,7 @@ from enum import StrEnum
 
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
 from scipy.optimize import minimize
 
 from alpha.historical_mean import HistoricalMeanAlpha
@@ -19,6 +20,7 @@ class OptimizationObjective(StrEnum):
 
     MAXIMUM_SHARPE = "maximum_sharpe"
     MAXIMUM_EXPECTED_RETURN = "maximum_expected_return"
+    MINIMUM_VALUE_AT_RISK = "minimum_var"
 
 
 @dataclass(frozen=True)
@@ -47,10 +49,12 @@ class Optimizer:
         objective: OptimizationObjective | str = OptimizationObjective.MAXIMUM_SHARPE,
         constraints: PortfolioConstraints | None = None,
         risk_free_rate: float = 0.0,
+        confidence_level: float | None = None,
     ) -> None:
         self.objective = OptimizationObjective(objective)
         self.constraints = constraints or PortfolioConstraints()
         self.risk_free_rate = risk_free_rate
+        self.confidence_level = confidence_level
 
     def optimize(
         self,
@@ -89,7 +93,16 @@ class Optimizer:
             return lambda weights: self.maximum_sharpe(
                 weights, expected_returns, covariance
             )
-        return lambda weights: self.maximum_expected_return(weights, expected_returns)
+        elif self.objective is OptimizationObjective.MAXIMUM_EXPECTED_RETURN:
+            return lambda weights: self.maximum_expected_return(
+                weights, expected_returns
+            )
+        elif self.objective is OptimizationObjective.MINIMUM_VALUE_AT_RISK:
+            return lambda weights: self.minimum_var(
+                weights, expected_returns, covariance
+            )
+        else:
+            raise ValueError("The portfolio optimization objective is ill-defined.")
 
     def maximum_sharpe(
         self,
@@ -109,6 +122,22 @@ class Optimizer:
     ) -> float:
         """Return negative expected portfolio return for minimisation."""
         return -float(weights @ expected_returns)
+    
+    def minimum_var(
+        self,
+        weights: np.ndarray, 
+        expected_returns: np.ndarray, 
+        covariance: np.ndarray,
+    ) -> float:
+        """Return value at risk of portfolio for minimisation."""
+        volatility = float(np.sqrt(weights @ covariance @ weights))
+        if self.confidence_level is None:
+            print("Default confidence level of 0.95 used for VaR quantification.")
+            self.confidence_level = 0.95
+        z_value = stats.norm.ppf(self.confidence_level)
+
+        return -float(weights @ expected_returns - z_value * volatility)
+
 
 
 def optimize_weights(
