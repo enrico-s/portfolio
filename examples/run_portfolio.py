@@ -39,7 +39,7 @@ def main() -> None:
         # alpha_model=HistoricalMeanAlpha(),
         # alpha_model=EqualAlpha(),
         risk_model=HistoricalCovarianceRiskModel(),
-        optimizer=Optimizer(objective=OptimizationObjective.MAXIMUM_EXPECTED_RETURN, constraints=PortfolioConstraints()),
+        optimizer=Optimizer(objective=OptimizationObjective.MINIMUM_VALUE_AT_RISK, constraints=PortfolioConstraints()),
         mode="rebalance",
         rebalance_frequency=21*2,
     ).run()
