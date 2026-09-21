@@ -33,3 +33,10 @@ class Portfolio:
         if missing:
             raise ValueError(f"Return data is missing assets: {sorted(missing)}")
         return asset_returns.loc[:, self.assets].dot(np.asarray(self.weights)).rename("portfolio")
+    
+    def covariance_from(self, asset_returns: pd.DataFrame) -> pd.DataFrame:
+        """Calculate the covariance matrix of the portfolio's assets from aligned asset returns."""
+        missing = set(self.assets).difference(asset_returns.columns)
+        if missing:
+            raise ValueError(f"Return data is missing assets: {sorted(missing)}")
+        return asset_returns.loc[:, self.assets].cov().rename(columns=dict(zip(self.assets, self.assets)), index=dict(zip(self.assets, self.assets)))
